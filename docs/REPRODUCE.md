@@ -128,3 +128,9 @@ These are properties of the code that produced Table 1, recorded so that a re-ru
 - The normal-consistency loss weight is `1e-4`, and the axis/scale split `λ` is `0.8`.
 - The depth prior (`L_depth`) is off in every Table 1 run.
 - Densification settings are chosen per scene (table above).
+- The normal-prior initialization (`utils/norminit_utils.py`) is released as it was found in the research
+  code. In that state, the per-view loop that samples a normal for each Gaussian and sets its rotation is
+  disabled (lines 241–316 are inside a string literal), so the function only flattens every Gaussian: the
+  first scale axis is set to 1e-5, and the other two to 0.1 where the first was non-negative. The file was
+  edited while the Table 1 models were being trained, so which state each model saw is not recorded. The
+  full loop is the one in [VEGS](https://github.com/deepshwang/vegs).
