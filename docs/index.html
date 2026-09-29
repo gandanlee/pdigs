@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Prior-Driven Enhancements in 3D Gaussian Splatting: Normals and Depths Regularization. ISPRS Geospatial Week 2025.">
+  <meta name="keywords" content="3D Gaussian Splatting, normal prior, depth prior, structure from motion, neural rendering, ISPRS 2025">
+  <meta property="og:title" content="Prior-Driven Enhancements in 3D Gaussian Splatting: Normals and Depths Regularization">
+  <meta property="og:description" content="ISPRS Geospatial Week 2025 (Oral)">
+  <meta property="og:image" content="https://gandanlee.github.io/pdigs/static/images/qualitative.jpg">
+  <meta property="og:url" content="https://gandanlee.github.io/pdigs/">
+  <meta name="twitter:card" content="summary_large_image">
+  <title>Prior-Driven Enhancements in 3D Gaussian Splatting</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Noto+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="static/css/page.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cellipse cx='50' cy='50' rx='40' ry='18' transform='rotate(-30 50 50)' fill='none' stroke='%23363636' stroke-width='7'/%3E%3Cline x1='50' y1='50' x2='70' y2='16' stroke='%23c0392b' stroke-width='7' stroke-linecap='round'/%3E%3C/svg%3E">
+</head>
+
+<body>
+
+<header class="hero">
+  <div class="container">
+    <h1 class="title">Prior-Driven Enhancements in 3D Gaussian Splatting:<br>Normals and Depths Regularization</h1>
+    <p class="venue">ISPRS Geospatial Week 2025 &middot; Oral</p>
+    <p class="authors">
+      <span>Gyeonggwan Lee</span>
+      <span>Seunghwan Hong</span>
+      <span>Junghun Suh</span>
+    </p>
+    <p class="affils"><span>AI R&amp;D Team, Kakao Mobility</span></p>
+
+    <div class="buttons">
+      <a class="button" href="static/paper/PDIGS_ISPRS2025.pdf">
+        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zm-1 7V3.5L18.5 9zM8 13h8v1.5H8zm0 3h8v1.5H8zm0-6h3v1.5H8z"/></svg>Paper</a>
+      <a class="button" href="https://doi.org/10.5194/isprs-archives-XLVIII-G-2025-891-2025">
+        <svg viewBox="0 0 24 24"><path d="M3.9 12a3.1 3.1 0 0 1 3.1-3.1h4V7H7a5 5 0 0 0 0 10h4v-1.9H7A3.1 3.1 0 0 1 3.9 12zM8 13h8v-2H8zm9-6h-4v1.9h4a3.1 3.1 0 0 1 0 6.2h-4V17h4a5 5 0 0 0 0-10z"/></svg>DOI</a>
+      <a class="button" href="https://github.com/gandanlee/pdigs">
+        <svg viewBox="0 0 24 24"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.37-3.87-1.37-.53-1.33-1.28-1.69-1.28-1.69-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.04 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.58.23 2.75.11 3.04.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.26 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>Code</a>
+      <span class="button disabled">
+        <svg viewBox="0 0 24 24"><path d="M4 3h16v2H4zm0 4h10v2H4zm0 4h16v2H4zm0 4h10v2H4zm0 4h16v2H4z"/></svg>arXiv (soon)</span>
+    </div>
+  </div>
+</header>
+
+<section class="teaser">
+  <div class="container">
+    <figure>
+      <img src="static/images/qualitative.jpg" alt="Qualitative comparison of 3DGS and ours on Train, Horse, Parking lots and Street-view">
+      <figcaption><b>TL;DR.</b> 3D Gaussian Splatting drifts in reflective, low-texture and repetitive scenes because
+        it starts from sparse SfM points. We regularize it with monocular surface normals and dense depth: the normals
+        orient and flatten each Gaussian onto the local surface, and the depth anchors per-pixel geometry. We test
+        this across three SfM pipelines, on benchmark scenes and on real parking-lot and street-view data.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="alt">
+  <div class="container narrow abstract">
+    <h2>Abstract</h2>
+    <p>3D Gaussian Splatting (3DGS) is a state-of-the-art technique for 3D scene rendering, offering high efficiency
+      and excellent visual quality. However, because 3DGS relies on an initial sparse point set from
+      Structure-from-Motion (SfM) and view-dependent properties, it can suffer from geometric inaccuracies and visual
+      artifacts, particularly in complex scenes. To address these challenges, we propose an improved 3DGS approach
+      that regularizes the optimization process by integrating geometric priors, including surface normals and dense
+      depth information. Surface normal regularization improves geometric consistency by aligning Gaussian covariance
+      with local surface structures, while dense depth priors combined with an initial points from SfM enhance
+      per-pixel depth estimation, increasing accuracy and reducing ambiguities. These enhancements enable robust
+      handling of diverse and complex real-world scenarios, minimizing visual distortions and improving
+      reconstruction quality across various environments. To validate our method, we evaluate it on challenging
+      datasets, including street-view scenes and highly reflective environments, while testing it across multiple
+      SfM pipelines. Our results demonstrate compatibility across diverse environments and highlight the robustness
+      of our approach. Experimental findings further show that our method enhances geometric accuracy and visual
+      quality, establishing a reliable solution for real-time 3D scene rendering in complex environments.</p>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <h2>Method</h2>
+    <div class="narrow" style="margin:0 auto">
+      <p>Both priors come from one off-the-shelf monocular network (Metric3D) and are added to the 3DGS
+        objective. The rasterizer is unchanged except that it also renders depth and the per-pixel rotation and
+        scale of the blended Gaussians, which the losses supervise.</p>
+    </div>
+    <div class="eq"><i>L</i> = (1&minus;&lambda;<sub>1</sub>)&thinsp;<i>L</i><sub>color</sub> + &lambda;<sub>1</sub>&thinsp;<i>L</i><sub>D-SSIM</sub> + <b>&lambda;<sub>2</sub>&thinsp;<i>L</i><sub>normal</sub> + &lambda;<sub>3</sub>&thinsp;<i>L</i><sub>depth</sub></b></div>
+
+    <div class="two-col">
+      <div>
+        <h4>Normal prior regularization</h4>
+        <p><b>Geometry-aware initialization</b> sets the orientation and scale of each initial Gaussian from the
+          predicted normals. The <b>normal-consistency loss</b>, <i>L</i><sub>normal</sub> =
+          &lambda;<i>L</i><sub>axis</sub> + (1&minus;&lambda;)<i>L</i><sub>scale</sub>, penalizes the alignment of
+          each covariance axis with the normal, weighted by its scale. The normal therefore becomes the Gaussian's
+          thinnest axis, and the splats lie flat on roads, floors and walls.</p>
+      </div>
+      <div>
+        <h4>Depth prior regularization</h4>
+        <p>Monocular depth <i>D</i><sub>dense</sub> has an unknown scale. It is aligned to the sparse depth
+          <i>D</i><sub>sparse</sub> obtained by projecting the SfM points, which gives <i>D</i><sub>guide</sub>. The
+          rendered depth <i>D</i> is supervised with <i>L</i><sub>depth</sub> =
+          &Vert;<i>D</i><sub>guide</sub> &minus; <i>D</i>&Vert;<sub>1</sub>, which resolves ambiguities in sparse
+          or noisy regions.</p>
+      </div>
+    </div>
+
+    <h3>Data</h3>
+    <div class="two-col">
+      <div>
+        <h4>Benchmark</h4>
+        <p>Tanks and Temples <i>Train</i> and <i>Horse</i>.</p>
+      </div>
+      <div>
+        <h4>Captured in-house</h4>
+        <p><i>Parking lots</i>: underground parking captured with a Ladybug6, a low-texture, reflective scene under
+          artificial light. <i>Street-view</i>: 90&deg; crops of equirectangular images from a vehicle-mounted mobile
+          mapping system, a scene with moving cars and pedestrians and repetitive road markings.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="alt">
+  <div class="container">
+    <h2>Results</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th rowspan="2">Dataset</th><th rowspan="2">Method</th><th colspan="4">COLMAP</th><th colspan="4">SP-SG</th><th colspan="4">LoFTR</th></tr>
+          <tr><th>MRE&darr;</th><th>PSNR&uarr;</th><th>SSIM&uarr;</th><th>LPIPS&darr;</th><th>MRE&darr;</th><th>PSNR&uarr;</th><th>SSIM&uarr;</th><th>LPIPS&darr;</th><th>MRE&darr;</th><th>PSNR&uarr;</th><th>SSIM&uarr;</th><th>LPIPS&darr;</th></tr>
+        </thead>
+        <tbody>
+          <tr><td rowspan="2">Train</td><td>3DGS</td><td rowspan="2">0.75</td><td>21.10</td><td>0.802</td><td>0.218</td><td rowspan="2">1.40</td><td>21.10</td><td>0.750</td><td>0.282</td><td rowspan="2">0.79</td><td>20.97</td><td>0.767</td><td>0.274</td></tr>
+          <tr class="ours"><td>Ours</td><td>21.97</td><td>0.799</td><td>0.252</td><td>21.32</td><td>0.749</td><td>0.287</td><td>21.11</td><td>0.759</td><td>0.291</td></tr>
+          <tr><td rowspan="2">Horse</td><td>3DGS</td><td rowspan="2">0.71</td><td>24.18</td><td>0.889</td><td>0.239</td><td rowspan="2">1.31</td><td>21.01</td><td>0.802</td><td>0.239</td><td rowspan="2">0.80</td><td>23.39</td><td>0.870</td><td>0.174</td></tr>
+          <tr class="ours"><td>Ours</td><td>25.50</td><td>0.903</td><td>0.153</td><td>21.12</td><td>0.801</td><td>0.246</td><td>24.80</td><td>0.881</td><td>0.165</td></tr>
+          <tr><td rowspan="2">Parking lots</td><td>3DGS</td><td rowspan="2">invalid</td><td>&ndash;</td><td>&ndash;</td><td>&ndash;</td><td rowspan="2">1.37</td><td>28.08</td><td>0.828</td><td>0.424</td><td rowspan="2">0.64</td><td>29.33</td><td>0.842</td><td>0.410</td></tr>
+          <tr class="ours"><td>Ours</td><td>&ndash;</td><td>&ndash;</td><td>&ndash;</td><td>28.37</td><td>0.829</td><td>0.427</td><td>29.07</td><td>0.840</td><td>0.414</td></tr>
+          <tr><td rowspan="2">Street-view</td><td>3DGS</td><td rowspan="2">invalid</td><td>&ndash;</td><td>&ndash;</td><td>&ndash;</td><td rowspan="2">1.09</td><td>18.33</td><td>0.468</td><td>0.410</td><td rowspan="2">0.56</td><td>22.28</td><td>0.729</td><td>0.331</td></tr>
+          <tr class="ours"><td>Ours</td><td>&ndash;</td><td>&ndash;</td><td>&ndash;</td><td>19.00</td><td>0.479</td><td>0.492</td><td>22.49</td><td>0.722</td><td>0.340</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">MRE: mean reprojection error of the SfM point cloud, which both rows of a dataset share. COLMAP fails to reconstruct
+      Parking lots and Street-view. The priors raise PSNR in 9 of the 10 valid settings. SSIM stays comparable, and LPIPS
+      rises in several cases where the monocular priors oversmooth fine texture.
+      <a href="https://github.com/gandanlee/pdigs/blob/main/docs/REPRODUCE.md">Reproduction notes</a>.</p>
+  </div>
+</section>
+
+<section id="gallery">
+  <div class="container">
+    <h2>Side-by-Side Comparison</h2>
+    <div class="cmp-wrap">
+      <div class="cmp-bar">
+        <button class="cmp-nav" id="cmpPrev" type="button" aria-label="Previous view">&#10094;</button>
+        <span class="cmp-counter" id="cmpCounter">&ndash;&thinsp;/&thinsp;&ndash;</span>
+        <button class="cmp-nav" id="cmpNext" type="button" aria-label="Next view">&#10095;</button>
+        <span class="cmp-scene" id="cmpScene"></span>
+        <div class="cmp-left" role="group" aria-label="Left image">
+          <button type="button" data-left="3dgs" class="on">3DGS</button>
+          <button type="button" data-left="gt">Ground truth</button>
+        </div>
+      </div>
+      <div class="cmp" id="cmp">
+        <img id="cmpBottom" alt="">
+        <img id="cmpTop" class="cmp-top" alt="">
+        <div class="cmp-line"></div>
+        <div class="cmp-knob">&#9664;&#9654;</div>
+        <span class="cmp-tag l" id="cmpTagL">3DGS</span>
+        <span class="cmp-tag r">Ours</span>
+      </div>
+      <div class="cmp-psnr" id="cmpPsnr">&nbsp;</div>
+    </div>
+    <p class="note">Held-out test views of Tanks and Temples, both methods initialized from the same LoFTR SfM
+      reconstruction. The views were selected to show the difference clearly, so they are not a random sample. On
+      Horse, ours has the higher PSNR on all 19 test views (mean +1.42&nbsp;dB). On Train it is higher on 22 of 38. Drag
+      the divider, or use &larr; &rarr; to switch views.</p>
+  </div>
+</section>
+
+<section class="alt" id="bibtex">
+  <div class="container narrow">
+    <h2>BibTeX</h2>
+    <div class="bibtex">
+      <button class="copy-btn" id="copyBib" type="button">Copy</button>
+<pre id="bibText">@article{lee2025prior,
+  title   = {Prior-Driven Enhancements in {3D} {Gaussian} Splatting:
+             Normals and Depths Regularization},
+  author  = {Lee, Gyeonggwan and Hong, Seunghwan and Suh, Junghun},
+  journal = {The International Archives of the Photogrammetry,
+             Remote Sensing and Spatial Information Sciences},
+  volume  = {XLVIII-G-2025},
+  pages   = {891--897},
+  year    = {2025},
+  doi     = {10.5194/isprs-archives-XLVIII-G-2025-891-2025}
+}</pre>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <p>This work builds on <a href="https://github.com/graphdeco-inria/gaussian-splatting">3D Gaussian Splatting</a> and
+      <a href="https://github.com/deepshwang/vegs">VEGS</a>, and uses <a href="https://github.com/YvanYin/Metric3D">Metric3D</a>
+      and the <a href="https://www.tanksandtemples.org/">Tanks and Temples</a> dataset.<br>
+      Code: <a href="https://github.com/gandanlee/pdigs">github.com/gandanlee/pdigs</a></p>
+  </div>
+</footer>
+
+<div class="lightbox" id="lightbox"><img src="" alt=""></div>
+
+<script>
+  (function () {
+    var btn = document.getElementById('copyBib');
+    btn.addEventListener('click', function () {
+      var t = document.getElementById('bibText').textContent;
+      (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(function () {
+        btn.textContent = 'Copied'; setTimeout(function () { btn.textContent = 'Copy'; }, 1500);
+      }).catch(function () {});
+    });
+    var lb = document.getElementById('lightbox'), lbImg = lb.querySelector('img');
+    document.querySelectorAll('figure img').forEach(function (im) {
+      im.addEventListener('click', function () { lbImg.src = im.src; lb.classList.add('open'); });
+    });
+    lb.addEventListener('click', function () { lb.classList.remove('open'); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') lb.classList.remove('open'); });
+
+    // Comparison slider. PSNR per view from the models' per_view.json (LoFTR SfM).
+    var views = [
+      { scene: 'Horse', id: '00011', base: 23.58, ours: 26.21 },
+      { scene: 'Horse', id: '00004', base: 24.72, ours: 27.10 },
+      { scene: 'Horse', id: '00010', base: 22.05, ours: 24.42 },
+      { scene: 'Train', id: '00017', base: 19.42, ours: 21.99 },
+      { scene: 'Train', id: '00010', base: 20.63, ours: 22.73 }
+    ];
+    var i = 0, left = '3dgs';
+    var cmp = document.getElementById('cmp'), top = document.getElementById('cmpTop'), bottom = document.getElementById('cmpBottom');
+    function src(v, k) { return 'static/gallery/' + v.scene + '_' + v.id + '_' + k + '.jpg'; }
+    function show() {
+      var v = views[i];
+      top.src = src(v, left); bottom.src = src(v, 'ours');
+      top.alt = (left === 'gt' ? 'Ground truth' : '3DGS') + ', ' + v.scene + ' view ' + v.id;
+      bottom.alt = 'Ours, ' + v.scene + ' view ' + v.id;
+      document.getElementById('cmpTagL').textContent = left === 'gt' ? 'Ground truth' : '3DGS';
+      document.getElementById('cmpCounter').textContent = (i + 1) + ' / ' + views.length;
+      document.getElementById('cmpScene').textContent = v.scene + ' · test view ' + v.id;
+      document.getElementById('cmpPsnr').innerHTML = 'PSNR &nbsp; 3DGS ' + v.base.toFixed(2) + ' dB &rarr; <b>Ours ' + v.ours.toFixed(2) + ' dB</b>';
+      views.forEach(function (w) { ['gt', '3dgs', 'ours'].forEach(function (k) { new Image().src = src(w, k); }); });
+    }
+    function step(d) { i = (i + d + views.length) % views.length; show(); }
+    document.getElementById('cmpPrev').addEventListener('click', function () { step(-1); });
+    document.getElementById('cmpNext').addEventListener('click', function () { step(1); });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowLeft') step(-1);
+      if (e.key === 'ArrowRight') step(1);
+    });
+    document.querySelectorAll('.cmp-left button').forEach(function (b) {
+      b.addEventListener('click', function () {
+        left = b.dataset.left;
+        document.querySelectorAll('.cmp-left button').forEach(function (o) { o.classList.toggle('on', o === b); });
+        show();
+      });
+    });
+    function drag(e) {
+      var r = cmp.getBoundingClientRect();
+      var x = Math.min(Math.max((e.clientX - r.left) / r.width, 0), 1);
+      cmp.style.setProperty('--x', (x * 100) + '%');
+    }
+    cmp.addEventListener('pointerdown', function (e) { cmp.setPointerCapture(e.pointerId); drag(e); });
+    cmp.addEventListener('pointermove', function (e) { if (e.buttons) drag(e); });
+    show();
+  })();
+</script>
+</body>
+</html>
