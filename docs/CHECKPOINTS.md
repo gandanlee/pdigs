@@ -1,10 +1,20 @@
 # Trained models
 
 The models behind Table 1 are 3D Gaussian Splatting outputs (`point_cloud/iteration_30000/point_cloud.ply`
-plus `cfg_args` and `cameras.json`), about 0.4–2 GB each and 25 GB in total. They are not released.
+plus `cfg_args` and `cameras.json`).
 
-Models of the Parking lots and Street-view scenes would also expose the unreleased in-house imagery,
-so only the Tanks and Temples models (Train, Horse) are candidates for release.
+The Tanks and Temples models (Train, Horse; 3DGS and ours; three SfM pipelines each, 12 in total, 2.9 GB) are on
+Hugging Face Hub at **[gandan-lee/pdigs](https://huggingface.co/gandan-lee/pdigs)**:
+
+```bash
+pip install huggingface_hub
+hf download gandan-lee/pdigs --local-dir models      # models/<method>/<sfm>/<scene>/point_cloud.ply
+```
+
+The Parking lots and Street-view models are not released, because they would expose the unreleased
+in-house imagery.
+
+Sizes of all Table 1 model folders on the training server:
 
 | Scene | SfM | 3DGS | Ours |
 |:--|:--|:-:|:-:|

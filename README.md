@@ -10,9 +10,11 @@ AI R&D Team, Kakao Mobility
 
 [![Paper](https://img.shields.io/badge/Paper-PDF-b31b1b)](paper/PDIGS_ISPRS2025.pdf)
 [![DOI](https://img.shields.io/badge/DOI-10.5194%2Fisprs--archives--XLVIII--G--2025--891--2025-0a7ea4)](https://doi.org/10.5194/isprs-archives-XLVIII-G-2025-891-2025)
+[![Project Page](https://img.shields.io/badge/Project-Page-0a7ea4)](https://gandanlee.github.io/pdigs/)
+[![Hugging Face](https://img.shields.io/badge/%F0%9F%A4%97%20Models-gandan--lee%2Fpdigs-yellow)](https://huggingface.co/gandan-lee/pdigs)
 [![License](https://img.shields.io/badge/Code-Gaussian--Splatting%20License-lightgrey)](LICENSE.md)
 
-**[Paper](paper/PDIGS_ISPRS2025.pdf)** · **[DOI](https://doi.org/10.5194/isprs-archives-XLVIII-G-2025-891-2025)** · **[Reproduce Table 1](docs/REPRODUCE.md)**
+**[Project Page](https://gandanlee.github.io/pdigs/)** · **[Paper](paper/PDIGS_ISPRS2025.pdf)** · **[🤗 Models](https://huggingface.co/gandan-lee/pdigs)** · **[DOI](https://doi.org/10.5194/isprs-archives-XLVIII-G-2025-891-2025)** · **[Reproduce Table 1](docs/REPRODUCE.md)**
 
 <img src="assets/qualitative.jpg" width="100%" alt="Qualitative comparison: GT, normal & depth priors, 3DGS, ours">
 
@@ -110,7 +112,7 @@ Densification (`--densify_until_iter`, `--size_threshold_from_iter`) was tuned p
 | `submodules/` | modified `diff-gaussian-rasterization` and `simple-knn` |
 | `scripts/` | Table 1 training script, Metric3D normal export |
 | `tests/` | CPU tests of the normal loss (`python -m pytest tests`) |
-| `docs/` | [reproduction](docs/REPRODUCE.md), [trained models](docs/CHECKPOINTS.md) |
+| `docs/` | [reproduction](docs/REPRODUCE.md), [trained models](docs/CHECKPOINTS.md), project page |
 | `paper/` | the published paper |
 
 ## Citation
