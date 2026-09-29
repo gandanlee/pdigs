@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Prior-Driven Enhancements in 3D Gaussian Splatting: Normals and Depths Regularization. ISPRS Geospatial Week 2025.">
+  <meta name="description" content="Prior-Driven Enhancements in 3D Gaussian Splatting: Normals and Depths Regularization. ISPRS Geospatial Week 2025 (Oral).">
   <meta name="keywords" content="3D Gaussian Splatting, normal prior, depth prior, structure from motion, neural rendering, ISPRS 2025">
   <meta property="og:title" content="Prior-Driven Enhancements in 3D Gaussian Splatting: Normals and Depths Regularization">
   <meta property="og:description" content="ISPRS Geospatial Week 2025 (Oral)">
-  <meta property="og:image" content="https://gandanlee.github.io/pdigs/static/images/qualitative.jpg">
+  <meta property="og:image" content="https://gandanlee.github.io/pdigs/docs/static/images/qualitative.jpg">
   <meta property="og:url" content="https://gandanlee.github.io/pdigs/">
   <meta name="twitter:card" content="summary_large_image">
   <title>Prior-Driven Enhancements in 3D Gaussian Splatting</title>
@@ -15,6 +15,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Noto+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
   <link rel="stylesheet" href="static/css/page.css">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cellipse cx='50' cy='50' rx='40' ry='18' transform='rotate(-30 50 50)' fill='none' stroke='%23363636' stroke-width='7'/%3E%3Cline x1='50' y1='50' x2='70' y2='16' stroke='%23c0392b' stroke-width='7' stroke-linecap='round'/%3E%3C/svg%3E">
 </head>
@@ -51,10 +52,11 @@
   <div class="container">
     <figure>
       <img src="static/images/qualitative.jpg" alt="Qualitative comparison of 3DGS and ours on Train, Horse, Parking lots and Street-view">
-      <figcaption><b>TL;DR.</b> 3D Gaussian Splatting drifts in reflective, low-texture and repetitive scenes because
-        it starts from sparse SfM points. We regularize it with monocular surface normals and dense depth: the normals
-        orient and flatten each Gaussian onto the local surface, and the depth anchors per-pixel geometry. We test
-        this across three SfM pipelines, on benchmark scenes and on real parking-lot and street-view data.</figcaption>
+      <figcaption><b>TL;DR.</b> 3D Gaussian Splatting starts from a sparse SfM point set, so reflective, low-texture and
+        repetitive scenes leave it with misplaced Gaussians and artifacts. We regularize its optimization with surface
+        normals and dense depth from a monocular network. The normals align each Gaussian's covariance with the local
+        surface, and the depth refines per-pixel geometry. We validate the approach with three SfM pipelines, on
+        benchmark scenes and on parking-lot and street-view data we captured. (Fig. 2 of the paper.)</figcaption>
     </figure>
   </div>
 </section>
@@ -83,48 +85,139 @@
   <div class="container">
     <h2>Method</h2>
     <div class="narrow" style="margin:0 auto">
-      <p>Both priors come from one off-the-shelf monocular network (Metric3D) and are added to the 3DGS
-        objective. The rasterizer is unchanged except that it also renders depth and the per-pixel rotation and
-        scale of the blended Gaussians, which the losses supervise.</p>
+      <p>The same images feed two branches. An SfM pipeline (COLMAP, SuperPoint + SuperGlue, or LoFTR) estimates the
+        camera poses and the sparse points that initialize the Gaussians. A monocular network (Metric3D) predicts a
+        surface normal and a depth for every pixel. Both priors enter the 3DGS optimization, which otherwise
+        stays unchanged.</p>
     </div>
-    <div class="eq"><i>L</i> = (1&minus;&lambda;<sub>1</sub>)&thinsp;<i>L</i><sub>color</sub> + &lambda;<sub>1</sub>&thinsp;<i>L</i><sub>D-SSIM</sub> + <b>&lambda;<sub>2</sub>&thinsp;<i>L</i><sub>normal</sub> + &lambda;<sub>3</sub>&thinsp;<i>L</i><sub>depth</sub></b></div>
+
+    <div class="pipeline">
+      <svg viewBox="0 0 960 250" role="img" aria-label="Pipeline: images go to SfM and to Metric3D; SfM gives poses and sparse points, Metric3D gives normals and depth; both feed prior-regularized 3DGS optimization.">
+        <defs>
+          <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#4a4a4a"/></marker>
+          <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#c0392b"/></marker>
+        </defs>
+        <g font-family="Noto Sans, sans-serif" font-size="14" fill="#1a1a1a">
+          <rect x="10" y="95" width="120" height="60" rx="8" fill="#f7f7f8" stroke="#bbb"/>
+          <text x="70" y="121" text-anchor="middle" font-weight="700">Images</text>
+          <text x="70" y="140" text-anchor="middle" font-size="12" fill="#4a4a4a">multi-view</text>
+
+          <rect x="190" y="20" width="200" height="70" rx="8" fill="#fff" stroke="#bbb"/>
+          <text x="290" y="46" text-anchor="middle" font-weight="700">SfM</text>
+          <text x="290" y="66" text-anchor="middle" font-size="12" fill="#4a4a4a">COLMAP · SP-SG · LoFTR</text>
+
+          <rect x="190" y="160" width="200" height="70" rx="8" fill="#fdf3f2" stroke="#c0392b"/>
+          <text x="290" y="186" text-anchor="middle" font-weight="700" fill="#c0392b">Monocular priors</text>
+          <text x="290" y="206" text-anchor="middle" font-size="12" fill="#4a4a4a">Metric3D</text>
+
+          <rect x="450" y="20" width="190" height="70" rx="8" fill="#fff" stroke="#bbb"/>
+          <text x="545" y="46" text-anchor="middle" font-weight="700">Poses + sparse points</text>
+          <text x="545" y="66" text-anchor="middle" font-size="12" fill="#4a4a4a">Gaussian initialization</text>
+
+          <rect x="450" y="160" width="190" height="70" rx="8" fill="#fdf3f2" stroke="#c0392b"/>
+          <text x="545" y="186" text-anchor="middle" font-weight="700" fill="#c0392b">Normals n · depth D<tspan font-size="10" dy="3">dense</tspan></text>
+          <text x="545" y="206" text-anchor="middle" font-size="12" fill="#4a4a4a">per pixel</text>
+
+          <rect x="700" y="70" width="250" height="110" rx="8" fill="#fff" stroke="#1a1a1a" stroke-width="1.5"/>
+          <text x="825" y="97" text-anchor="middle" font-weight="700">3DGS optimization</text>
+          <text x="825" y="120" text-anchor="middle" font-size="12" fill="#4a4a4a">L_color + L_D-SSIM</text>
+          <text x="825" y="141" text-anchor="middle" font-size="12" fill="#c0392b">+ geometry-aware init + L_normal</text>
+          <text x="825" y="160" text-anchor="middle" font-size="12" fill="#c0392b">+ L_depth (D_guide from SfM scale)</text>
+        </g>
+        <g fill="none" stroke="#4a4a4a" stroke-width="1.6">
+          <path d="M130 115 C160 115 160 55 188 55" marker-end="url(#ar)"/>
+          <path d="M390 55 L448 55" marker-end="url(#ar)"/>
+          <path d="M640 55 C670 55 670 110 698 110" marker-end="url(#ar)"/>
+          <path d="M545 90 L545 158" stroke-dasharray="4 4" marker-end="url(#ar)"/>
+        </g>
+        <g fill="none" stroke="#c0392b" stroke-width="1.6">
+          <path d="M130 135 C160 135 160 195 188 195" marker-end="url(#arr)"/>
+          <path d="M390 195 L448 195" marker-end="url(#arr)"/>
+          <path d="M640 195 C670 195 670 145 698 145" marker-end="url(#arr)"/>
+        </g>
+        <text x="552" y="130" font-family="Noto Sans, sans-serif" font-size="11" fill="#4a4a4a">scale of D<tspan font-size="9" dy="3">sparse</tspan></text>
+      </svg>
+    </div>
+
+    <h3>Objective</h3>
+    <div class="katex-block" data-tex="\mathcal{L} = (1-\lambda_1)\,\mathcal{L}_{\text{color}} + \lambda_1\,\mathcal{L}_{\text{D-SSIM}} + \color{#c0392b}{\lambda_2\,\mathcal{L}_{\text{normal}} + \lambda_3\,\mathcal{L}_{\text{depth}}}"></div>
+    <p class="eq-caption">Eq. (7). The first two terms are the original 3DGS losses, and the terms in red are ours.</p>
 
     <div class="two-col">
       <div>
         <h4>Normal prior regularization</h4>
-        <p><b>Geometry-aware initialization</b> sets the orientation and scale of each initial Gaussian from the
-          predicted normals. The <b>normal-consistency loss</b>, <i>L</i><sub>normal</sub> =
-          &lambda;<i>L</i><sub>axis</sub> + (1&minus;&lambda;)<i>L</i><sub>scale</sub>, penalizes the alignment of
-          each covariance axis with the normal, weighted by its scale. The normal therefore becomes the Gaussian's
-          thinnest axis, and the splats lie flat on roads, floors and walls.</p>
+        <p><b>Geometry-aware initialization</b> aligns the orientation and scale of each initial Gaussian with the
+          predicted surface normals. The <b>normal-consistency loss</b> then aligns the orientation and scale of every
+          Gaussian's covariance with the surface, flattening it along the normal (after Hwang et al., 2024):</p>
+        <div class="katex-block" data-tex="\mathcal{L}_{\text{normal}} = \lambda\,\mathcal{L}_{\text{axis}} + (1-\lambda)\,\mathcal{L}_{\text{scale}}"></div>
+        <div class="katex-block" data-tex="\mathcal{L}_{\text{axis}} = \frac{1}{N}\sum_{i=1}^{N}\sum_{j\in\{0,1,2\}}\bigl|\tilde R^{(i)}_G[:,j]\cdot\mathbf n^{(i)}\bigr|"></div>
+        <div class="katex-block" data-tex="\mathcal{L}_{\text{scale}} = \frac{1}{N}\sum_{i=1}^{N}\sum_{j\in\{0,1,2\}}\tilde s^{(i)}_G[j]\,\bigl|\tilde R^{(i)}_G[:,j]\cdot\mathbf n^{(i)}\bigr|"></div>
       </div>
       <div>
         <h4>Depth prior regularization</h4>
-        <p>Monocular depth <i>D</i><sub>dense</sub> has an unknown scale. It is aligned to the sparse depth
-          <i>D</i><sub>sparse</sub> obtained by projecting the SfM points, which gives <i>D</i><sub>guide</sub>. The
-          rendered depth <i>D</i> is supervised with <i>L</i><sub>depth</sub> =
-          &Vert;<i>D</i><sub>guide</sub> &minus; <i>D</i>&Vert;<sub>1</sub>, which resolves ambiguities in sparse
-          or noisy regions.</p>
+        <p>The predicted depth <i>D</i><sub>dense</sub> has an unknown scale. It is rescaled to match the sparse
+          depth <i>D</i><sub>sparse</sub>, obtained by projecting the SfM points onto each image, which gives the
+          guide <i>D</i><sub>guide</sub>. The depth <i>D</i> rendered by Gaussian splatting is supervised with an L1 loss:</p>
+        <div class="katex-block" data-tex="\mathcal{L}_{\text{depth}} = \bigl\lVert D_{\text{guide}} - D \bigr\rVert_1"></div>
+        <p>Dense depth refines per-pixel geometry where the sparse SfM points leave it ambiguous, such as in
+          repetitive patterns or on low-texture surfaces.</p>
       </div>
     </div>
 
-    <h3>Data</h3>
-    <div class="two-col">
-      <div>
-        <h4>Benchmark</h4>
-        <p>Tanks and Temples <i>Train</i> and <i>Horse</i>.</p>
+    <div class="demo">
+      <div class="demo-head">
+        <h4>Interactive: the normal-consistency loss</h4>
+        <p>A 2D slice of one Gaussian lying on a surface with normal <b>n</b>. Rotate it and change its shape. The two
+          terms follow Eqs. (5)–(6) for this Gaussian. Both reach their minimum when the Gaussian lies flat on the
+          surface, with its thinnest axis along the normal.</p>
       </div>
-      <div>
-        <h4>Captured in-house</h4>
-        <p><i>Parking lots</i>: underground parking captured with a Ladybug6, a low-texture, reflective scene under
-          artificial light. <i>Street-view</i>: 90&deg; crops of equirectangular images from a vehicle-mounted mobile
-          mapping system, a scene with moving cars and pedestrians and repetitive road markings.</p>
+      <div class="demo-body">
+        <canvas id="nlCanvas" width="720" height="380"></canvas>
+        <div class="demo-controls">
+          <label for="nlRot">Rotation of the Gaussian</label>
+          <input type="range" id="nlRot" min="-90" max="90" value="35" step="1">
+          <label for="nlFlat">Scale along axis 2 (thickness)</label>
+          <input type="range" id="nlFlat" min="2" max="100" value="60" step="1">
+          <div class="demo-readout">
+            <div><span class="ro-num" id="roAxis">&ndash;</span><span class="ro-lab">L<sub>axis</sub></span></div>
+            <div><span class="ro-num" id="roScale">&ndash;</span><span class="ro-lab">L<sub>scale</sub></span></div>
+          </div>
+          <button class="demo-btn" id="nlAlign" type="button">Lie flat on the surface</button>
+        </div>
       </div>
+      <p class="demo-foot">In 3D, the normal can only be orthogonal to two of the three axes. The minimum therefore puts
+        the smallest scale on the axis that points along the normal, and the Gaussian becomes a thin disk on the surface.</p>
     </div>
   </div>
 </section>
 
 <section class="alt">
+  <div class="container">
+    <h2>Data</h2>
+    <div class="narrow" style="margin:0 auto">
+      <p>We use two Tanks and Temples scenes, <i>Train</i> and <i>Horse</i>, and two scenes we captured ourselves.
+        Both of our scenes have repetitive patterns, strong reflections or low-texture surfaces, which make feature
+        matching and pose estimation hard.</p>
+    </div>
+    <div class="hw">
+      <figure>
+        <img src="static/images/ladybug6.jpg" alt="Ladybug6 camera">
+        <h4>Parking lots &middot; Ladybug6</h4>
+        <p>Underground parking lots, captured with the three front and side cameras of a Ladybug6. 2992&times;4096 images,
+          85.9&deg; FOV, 1 FPS, undistorted. Low texture, reflections and varying illumination.</p>
+      </figure>
+      <figure>
+        <img src="static/images/mms.jpg" alt="Mobile mapping system on a vehicle">
+        <h4>Street-view &middot; Mobile Mapping System</h4>
+        <p>A six-camera MMS on a moving vehicle, captured at fixed distance intervals. Each equirectangular image gives seven
+          90&deg; views at 45&deg; steps (the rear view is excluded), each 1080&times;1080. Dynamic objects, road
+          markings and similar facades.</p>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section>
   <div class="container">
     <h2>Results</h2>
     <div class="table-wrap">
@@ -145,10 +238,52 @@
         </tbody>
       </table>
     </div>
-    <p class="note">MRE: mean reprojection error of the SfM point cloud, which both rows of a dataset share. COLMAP fails to reconstruct
-      Parking lots and Street-view. The priors raise PSNR in 9 of the 10 valid settings. SSIM stays comparable, and LPIPS
-      rises in several cases where the monocular priors oversmooth fine texture.
-      <a href="https://github.com/gandanlee/pdigs/blob/main/docs/REPRODUCE.md">Reproduction notes</a>.</p>
+    <p class="note">Table 1 of the paper. MRE is the mean reprojection error of the SfM point cloud. COLMAP fails to
+      reconstruct the Parking lots and Street-view scenes.</p>
+
+    <div class="chart">
+      <h4>PSNR gain over 3DGS (dB)</h4>
+      <svg id="gainChart" viewBox="0 0 900 250" role="img" aria-label="PSNR gain of ours over 3DGS for each dataset and SfM pipeline"></svg>
+    </div>
+
+    <ul class="findings">
+      <li><b>PSNR rises in 9 of the 10 valid settings</b>, for example from 21.10 to 21.97 on Train and from 24.18 to
+        25.50 on Horse with COLMAP. The exception is Parking lots with LoFTR (29.33 &rarr; 29.07), where reflections of
+        artificial light on the floor blur the priors.</li>
+      <li><b>SSIM stays comparable</b>, and LPIPS rises in some cases. Low-quality normals and depths can oversmooth
+        high-frequency detail such as grass, foliage, gravel and clouds, while scene structure, edges and object
+        placement are preserved.</li>
+      <li><b>A lower MRE goes with a higher PSNR and SSIM</b>, while its correlation with LPIPS is weak. COLMAP does well
+        on feature-rich benchmarks but fails with wide baselines and reflective surfaces. SP-SG and LoFTR reconstruct
+        every scene, which makes LoFTR a strong alternative where COLMAP fails.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="alt" id="viewer3d">
+  <div class="container">
+    <h2>Interactive 3D Gaussians</h2>
+    <div class="gs-wrap">
+      <div class="gs-bar">
+        <button class="tab on" type="button" data-scene="horse">Horse</button>
+        <button class="tab" type="button" data-scene="train">Train</button>
+        <button class="tab" type="button" id="gsReset">Reset view</button>
+        <span class="hint">drag to orbit &middot; right-drag to pan &middot; scroll to zoom &middot; both views move together</span>
+      </div>
+      <div class="gs-2col">
+        <div class="gs-panel">
+          <div class="gs-label">3DGS</div>
+          <div class="gs-frame" id="gsLeft"></div>
+        </div>
+        <div class="gs-panel ours">
+          <div class="gs-label">Ours</div>
+          <div class="gs-frame" id="gsRight"></div>
+        </div>
+      </div>
+    </div>
+    <p class="note">Trained Tanks and Temples models (LoFTR SfM), rendered live in the browser. For the web, each model
+      keeps its 800k most significant Gaussians (about 25&nbsp;MB per view). Full models are on
+      <a href="https://huggingface.co/gandan-lee/pdigs">Hugging Face</a>. The views start from a held-out test camera.</p>
   </div>
 </section>
 
@@ -174,12 +309,10 @@
         <span class="cmp-tag l" id="cmpTagL">3DGS</span>
         <span class="cmp-tag r">Ours</span>
       </div>
-      <div class="cmp-psnr" id="cmpPsnr">&nbsp;</div>
     </div>
-    <p class="note">Held-out test views of Tanks and Temples, both methods initialized from the same LoFTR SfM
-      reconstruction. The views were selected to show the difference clearly, so they are not a random sample. On
-      Horse, ours has the higher PSNR on all 19 test views (mean +1.42&nbsp;dB). On Train it is higher on 22 of 38. Drag
-      the divider, or use &larr; &rarr; to switch views.</p>
+    <p class="note">Held-out test views of Tanks and Temples, rendered by both methods from the same LoFTR SfM
+      initialization. The views were selected to show the difference clearly. Drag the divider, or use &larr; &rarr;
+      to switch views.</p>
   </div>
 </section>
 
@@ -207,74 +340,218 @@
   <div class="container">
     <p>This work builds on <a href="https://github.com/graphdeco-inria/gaussian-splatting">3D Gaussian Splatting</a> and
       <a href="https://github.com/deepshwang/vegs">VEGS</a>, and uses <a href="https://github.com/YvanYin/Metric3D">Metric3D</a>
-      and the <a href="https://www.tanksandtemples.org/">Tanks and Temples</a> dataset.<br>
+      and the <a href="https://www.tanksandtemples.org/">Tanks and Temples</a> dataset. The in-browser viewer is adapted
+      from <a href="https://github.com/antimatter15/splat">antimatter15/splat</a>.<br>
       Code: <a href="https://github.com/gandanlee/pdigs">github.com/gandanlee/pdigs</a></p>
   </div>
 </footer>
 
 <div class="lightbox" id="lightbox"><img src="" alt=""></div>
 
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
 <script>
-  (function () {
-    var btn = document.getElementById('copyBib');
-    btn.addEventListener('click', function () {
-      var t = document.getElementById('bibText').textContent;
-      (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(function () {
-        btn.textContent = 'Copied'; setTimeout(function () { btn.textContent = 'Copy'; }, 1500);
-      }).catch(function () {});
-    });
-    var lb = document.getElementById('lightbox'), lbImg = lb.querySelector('img');
-    document.querySelectorAll('figure img').forEach(function (im) {
-      im.addEventListener('click', function () { lbImg.src = im.src; lb.classList.add('open'); });
-    });
-    lb.addEventListener('click', function () { lb.classList.remove('open'); });
-    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') lb.classList.remove('open'); });
+(function () {
+  // ---------- equations ----------
+  document.querySelectorAll('.katex-block').forEach(function (el) {
+    try { katex.render(el.dataset.tex, el, { displayMode: true, throwOnError: false }); }
+    catch (e) { el.textContent = el.dataset.tex; }
+  });
 
-    // Comparison slider. PSNR per view from the models' per_view.json (LoFTR SfM).
-    var views = [
-      { scene: 'Horse', id: '00011', base: 23.58, ours: 26.21 },
-      { scene: 'Horse', id: '00004', base: 24.72, ours: 27.10 },
-      { scene: 'Horse', id: '00010', base: 22.05, ours: 24.42 },
-      { scene: 'Train', id: '00017', base: 19.42, ours: 21.99 },
-      { scene: 'Train', id: '00010', base: 20.63, ours: 22.73 }
-    ];
-    var i = 0, left = '3dgs';
-    var cmp = document.getElementById('cmp'), top = document.getElementById('cmpTop'), bottom = document.getElementById('cmpBottom');
-    function src(v, k) { return 'static/gallery/' + v.scene + '_' + v.id + '_' + k + '.jpg'; }
-    function show() {
-      var v = views[i];
-      top.src = src(v, left); bottom.src = src(v, 'ours');
-      top.alt = (left === 'gt' ? 'Ground truth' : '3DGS') + ', ' + v.scene + ' view ' + v.id;
-      bottom.alt = 'Ours, ' + v.scene + ' view ' + v.id;
-      document.getElementById('cmpTagL').textContent = left === 'gt' ? 'Ground truth' : '3DGS';
-      document.getElementById('cmpCounter').textContent = (i + 1) + ' / ' + views.length;
-      document.getElementById('cmpScene').textContent = v.scene + ' · test view ' + v.id;
-      document.getElementById('cmpPsnr').innerHTML = 'PSNR &nbsp; 3DGS ' + v.base.toFixed(2) + ' dB &rarr; <b>Ours ' + v.ours.toFixed(2) + ' dB</b>';
-      views.forEach(function (w) { ['gt', '3dgs', 'ours'].forEach(function (k) { new Image().src = src(w, k); }); });
+  // ---------- bibtex / lightbox ----------
+  var btn = document.getElementById('copyBib');
+  btn.addEventListener('click', function () {
+    var t = document.getElementById('bibText').textContent;
+    (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(function () {
+      btn.textContent = 'Copied'; setTimeout(function () { btn.textContent = 'Copy'; }, 1500);
+    }).catch(function () {});
+  });
+  var lb = document.getElementById('lightbox'), lbImg = lb.querySelector('img');
+  document.querySelectorAll('.teaser figure img').forEach(function (im) {
+    im.addEventListener('click', function () { lbImg.src = im.src; lb.classList.add('open'); });
+  });
+  lb.addEventListener('click', function () { lb.classList.remove('open'); });
+
+  // ---------- normal-consistency demo (2D slice of Eqs. 5-6) ----------
+  var cv = document.getElementById('nlCanvas'), ctx = cv.getContext('2d');
+  var rot = document.getElementById('nlRot'), flat = document.getElementById('nlFlat');
+  function drawDemo() {
+    var W = cv.width, H = cv.height, th = rot.value * Math.PI / 180;
+    var s1 = 1.0, s2 = flat.value / 100;          // scales of axis 1 and axis 2 (relative)
+    var n = [0, 1];                                 // surface normal (up)
+    var a1 = [Math.cos(th), Math.sin(th)], a2 = [-Math.sin(th), Math.cos(th)];
+    var d1 = Math.abs(a1[0] * n[0] + a1[1] * n[1]), d2 = Math.abs(a2[0] * n[0] + a2[1] * n[1]);
+    var lAxis = (d1 + d2) / 2, lScale = (s1 * d1 + s2 * d2) / 2;   // mean over axes, as in the code
+    document.getElementById('roAxis').textContent = lAxis.toFixed(3);
+    document.getElementById('roScale').textContent = lScale.toFixed(3);
+
+    ctx.clearRect(0, 0, W, H);
+    var gy = H * 0.62, cx = W * 0.5, R = 150;
+    // surface
+    ctx.fillStyle = '#eceef2'; ctx.fillRect(0, gy, W, H - gy);
+    ctx.strokeStyle = '#8a8f99'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(W, gy); ctx.stroke();
+    ctx.fillStyle = '#7a7a7a'; ctx.font = '20px Noto Sans, sans-serif'; ctx.fillText('surface', 16, gy + 30);
+    // Gaussian (screen y points down, so negate)
+    ctx.save(); ctx.translate(cx, gy); ctx.rotate(-th);
+    var g = ctx.createRadialGradient(0, 0, 0, 0, 0, 1);
+    g.addColorStop(0, 'rgba(192,57,43,0.85)'); g.addColorStop(1, 'rgba(192,57,43,0)');
+    ctx.scale(R * s1, Math.max(R * s2, 1.5)); ctx.beginPath(); ctx.arc(0, 0, 1, 0, 2 * Math.PI);
+    ctx.fillStyle = g; ctx.fill(); ctx.restore();
+    // axes
+    function arrow(v, len, col, label) {
+      var x = cx + v[0] * len, y = gy - v[1] * len;
+      ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = 3.5;
+      ctx.beginPath(); ctx.moveTo(cx, gy); ctx.lineTo(x, y); ctx.stroke();
+      var a = Math.atan2(y - gy, x - cx);
+      ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x - 14 * Math.cos(a - 0.4), y - 14 * Math.sin(a - 0.4));
+      ctx.lineTo(x - 14 * Math.cos(a + 0.4), y - 14 * Math.sin(a + 0.4)); ctx.closePath(); ctx.fill();
+      ctx.font = '600 22px Noto Sans, sans-serif'; ctx.fillText(label, x + 8, y - 8);
     }
-    function step(d) { i = (i + d + views.length) % views.length; show(); }
-    document.getElementById('cmpPrev').addEventListener('click', function () { step(-1); });
-    document.getElementById('cmpNext').addEventListener('click', function () { step(1); });
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'ArrowLeft') step(-1);
-      if (e.key === 'ArrowRight') step(1);
+    arrow(a1, R * s1 + 12, '#363636', 'axis 1');
+    arrow(a2, Math.max(R * s2, 18) + 12, '#363636', 'axis 2');
+    arrow(n, 120, '#3273dc', 'n');
+  }
+  rot.addEventListener('input', drawDemo); flat.addEventListener('input', drawDemo);
+  document.getElementById('nlAlign').addEventListener('click', function () {
+    var r0 = +rot.value, f0 = +flat.value, t0 = performance.now();
+    (function step(t) {
+      var k = Math.min((t - t0) / 700, 1), e = 1 - Math.pow(1 - k, 3);
+      rot.value = Math.round(r0 * (1 - e)); flat.value = Math.round(f0 + (2 - f0) * e); drawDemo();
+      if (k < 1) requestAnimationFrame(step);
+    })(t0);
+  });
+  drawDemo();
+
+  // ---------- PSNR gain chart (Table 1) ----------
+  var rows = [
+    ['Train', [['COLMAP', 21.10, 21.97], ['SP-SG', 21.10, 21.32], ['LoFTR', 20.97, 21.11]]],
+    ['Horse', [['COLMAP', 24.18, 25.50], ['SP-SG', 21.01, 21.12], ['LoFTR', 23.39, 24.80]]],
+    ['Parking lots', [['COLMAP', null, null], ['SP-SG', 28.08, 28.37], ['LoFTR', 29.33, 29.07]]],
+    ['Street-view', [['COLMAP', null, null], ['SP-SG', 18.33, 19.00], ['LoFTR', 22.28, 22.49]]]
+  ];
+  var svg = document.getElementById('gainChart'), NS = 'http://www.w3.org/2000/svg';
+  function el(tag, at, txt) { var e = document.createElementNS(NS, tag); for (var k in at) e.setAttribute(k, at[k]); if (txt != null) e.textContent = txt; svg.appendChild(e); return e; }
+  var x0 = 50, y0 = 150, sc = 80, gw = 210, bw = 46, cols = { 'COLMAP': '#9aa3b2', 'SP-SG': '#5b6b85', 'LoFTR': '#c0392b' };
+  for (var v = -0.5; v <= 1.5; v += 0.5) {
+    var y = y0 - v * sc;
+    el('line', { x1: x0, x2: 890, y1: y, y2: y, stroke: v === 0 ? '#1a1a1a' : '#e5e5e5', 'stroke-width': v === 0 ? 1.2 : 1 });
+    el('text', { x: x0 - 8, y: y + 4, 'text-anchor': 'end', 'font-size': 12, fill: '#7a7a7a', 'font-family': 'Noto Sans, sans-serif' }, (v > 0 ? '+' : '') + v.toFixed(1));
+  }
+  rows.forEach(function (r, gi) {
+    var gx = x0 + 20 + gi * gw;
+    r[1].forEach(function (c, bi) {
+      var bx = gx + bi * (bw + 10);
+      if (c[1] == null) {
+        el('text', { x: bx + bw / 2, y: y0 - 8, 'text-anchor': 'middle', 'font-size': 11, fill: '#aaa', 'font-family': 'Noto Sans, sans-serif' }, 'n/a');
+      } else {
+        var d = c[2] - c[1], h = Math.abs(d) * sc;
+        el('rect', { x: bx, y: d >= 0 ? y0 - h : y0, width: bw, height: h, rx: 3, fill: cols[c[0]] });
+        el('text', { x: bx + bw / 2, y: d >= 0 ? y0 - h - 6 : y0 + h + 14, 'text-anchor': 'middle', 'font-size': 12, 'font-weight': 600, fill: '#1a1a1a', 'font-family': 'JetBrains Mono, monospace' }, (d >= 0 ? '+' : '') + d.toFixed(2));
+      }
     });
-    document.querySelectorAll('.cmp-left button').forEach(function (b) {
-      b.addEventListener('click', function () {
-        left = b.dataset.left;
-        document.querySelectorAll('.cmp-left button').forEach(function (o) { o.classList.toggle('on', o === b); });
-        show();
-      });
+    el('text', { x: gx + (3 * bw + 20) / 2, y: 238, 'text-anchor': 'middle', 'font-size': 14, 'font-weight': 700, fill: '#1a1a1a', 'font-family': 'Noto Sans, sans-serif' }, r[0]);
+  });
+  ['COLMAP', 'SP-SG', 'LoFTR'].forEach(function (k, i) {
+    el('rect', { x: 700 + i * 70, y: 14, width: 12, height: 12, rx: 2, fill: cols[k] });
+    el('text', { x: 716 + i * 70, y: 24, 'font-size': 12, fill: '#4a4a4a', 'font-family': 'Noto Sans, sans-serif' }, k);
+  });
+
+  // ---------- 3D viewers ----------
+  var HF = 'https://huggingface.co/gandan-lee/pdigs/resolve/main/web/';
+  var scenes = {
+    horse: { start: '00089', poster: 'static/gallery/Horse_00011_' },
+    train: { start: '00137', poster: 'static/gallery/Train_00017_' }
+  };
+  var cur = 'horse', frames = { l: document.getElementById('gsLeft'), r: document.getElementById('gsRight') };
+  function viewerUrl(scene, method) {
+    return 'static/viewer/viewer.html?url=' + encodeURIComponent(HF + scene + '_' + method + '.splat') +
+      '&cams=' + encodeURIComponent(HF + scene + '_cameras.json') + '&start=' + scenes[scene].start;
+  }
+  function showStart(scene) {
+    ['l', 'r'].forEach(function (side) {
+      var m = side === 'l' ? '3dgs' : 'ours';
+      frames[side].innerHTML = '';
+      var b = document.createElement('button');
+      b.className = 'gs-start'; b.type = 'button';
+      b.style.backgroundImage = 'url(' + scenes[scene].poster + m + '.jpg)';
+      b.innerHTML = '<span class="big">&#9654; Load 3D</span><span class="small">both views &middot; about 50 MB</span>';
+      b.addEventListener('click', function () { load(scene); });
+      frames[side].appendChild(b);
     });
-    function drag(e) {
-      var r = cmp.getBoundingClientRect();
-      var x = Math.min(Math.max((e.clientX - r.left) / r.width, 0), 1);
-      cmp.style.setProperty('--x', (x * 100) + '%');
-    }
-    cmp.addEventListener('pointerdown', function (e) { cmp.setPointerCapture(e.pointerId); drag(e); });
-    cmp.addEventListener('pointermove', function (e) { if (e.buttons) drag(e); });
-    show();
-  })();
+  }
+  function load(scene) {
+    ['l', 'r'].forEach(function (side) {
+      frames[side].innerHTML = '';
+      var f = document.createElement('iframe');
+      f.src = viewerUrl(scene, side === 'l' ? '3dgs' : 'ours');
+      f.title = (side === 'l' ? '3DGS' : 'Ours') + ' 3D Gaussians, ' + scene;
+      f.setAttribute('loading', 'lazy');
+      frames[side].appendChild(f);
+    });
+  }
+  function iframes() { return [frames.l, frames.r].map(function (d) { return d.querySelector('iframe'); }); }
+  window.addEventListener('message', function (e) {
+    if (!e.data || e.data.type !== 'pdigs-vm') return;
+    iframes().forEach(function (f) {
+      if (f && f.contentWindow && f.contentWindow !== e.source) f.contentWindow.postMessage({ type: 'pdigs-set-vm', vm: e.data.vm }, '*');
+    });
+  });
+  document.querySelectorAll('.gs-bar .tab[data-scene]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      if (b.dataset.scene === cur) return;
+      cur = b.dataset.scene;
+      document.querySelectorAll('.gs-bar .tab[data-scene]').forEach(function (o) { o.classList.toggle('on', o === b); });
+      var loaded = iframes()[0] != null;
+      if (loaded) load(cur); else showStart(cur);
+    });
+  });
+  document.getElementById('gsReset').addEventListener('click', function () {
+    iframes().forEach(function (f) { if (f) f.contentWindow.postMessage({ type: 'pdigs-reset' }, '*'); });
+  });
+  showStart(cur);
+
+  // ---------- comparison slider ----------
+  var views = [
+    { scene: 'Horse', id: '00011' }, { scene: 'Horse', id: '00004' }, { scene: 'Horse', id: '00010' },
+    { scene: 'Train', id: '00017' }, { scene: 'Train', id: '00010' }
+  ];
+  var i = 0, left = '3dgs';
+  var cmp = document.getElementById('cmp'), topImg = document.getElementById('cmpTop'), bottom = document.getElementById('cmpBottom');
+  function src(v, k) { return 'static/gallery/' + v.scene + '_' + v.id + '_' + k + '.jpg'; }
+  function show() {
+    var v = views[i];
+    topImg.src = src(v, left); bottom.src = src(v, 'ours');
+    topImg.alt = (left === 'gt' ? 'Ground truth' : '3DGS') + ', ' + v.scene;
+    bottom.alt = 'Ours, ' + v.scene;
+    document.getElementById('cmpTagL').textContent = left === 'gt' ? 'Ground truth' : '3DGS';
+    document.getElementById('cmpCounter').textContent = (i + 1) + ' / ' + views.length;
+    document.getElementById('cmpScene').textContent = v.scene + ' · test view';
+  }
+  function step(d) { i = (i + d + views.length) % views.length; show(); }
+  document.getElementById('cmpPrev').addEventListener('click', function () { step(-1); });
+  document.getElementById('cmpNext').addEventListener('click', function () { step(1); });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') lb.classList.remove('open');
+    var r = cmp.getBoundingClientRect();
+    if (r.bottom < 0 || r.top > innerHeight) return;
+    if (e.key === 'ArrowLeft') step(-1);
+    if (e.key === 'ArrowRight') step(1);
+  });
+  document.querySelectorAll('.cmp-left button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      left = b.dataset.left;
+      document.querySelectorAll('.cmp-left button').forEach(function (o) { o.classList.toggle('on', o === b); });
+      show();
+    });
+  });
+  function drag(e) {
+    var r = cmp.getBoundingClientRect();
+    cmp.style.setProperty('--x', (Math.min(Math.max((e.clientX - r.left) / r.width, 0), 1) * 100) + '%');
+  }
+  cmp.addEventListener('pointerdown', function (e) { cmp.setPointerCapture(e.pointerId); drag(e); });
+  cmp.addEventListener('pointermove', function (e) { if (e.buttons) drag(e); });
+  views.forEach(function (w) { ['gt', '3dgs', 'ours'].forEach(function (k) { new Image().src = src(w, k); }); });
+  show();
+})();
 </script>
 </body>
 </html>

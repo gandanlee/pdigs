@@ -21,14 +21,14 @@ run() {  # run <sfm> <scene> [train.py options...]
 
 # Tanks and Temples
 run colmap     Train --densify_until_iter 10000 --size_threshold_from_iter 8000
-run sp-sg      Train                                                               # note 1
+run sp-sg      Train
 run defree_sfm Train --densify_until_iter 10000 --size_threshold_from_iter 8000
-run colmap     Horse --densify_until_iter 20000 --size_threshold_from_iter -1      # note 2
+run colmap     Horse --densify_until_iter 20000 --size_threshold_from_iter -1
 run sp-sg      Horse --densify_until_iter 20000 --size_threshold_from_iter -1
 run defree_sfm Horse --densify_until_iter 15000 --size_threshold_from_iter -1
 
 # In-house scenes (not released)
 run sp-sg      ladybug6   --densify_until_iter 10000 --size_threshold_from_iter 10000
-run defree_sfm ladybug6                                                            # note 1
+run defree_sfm ladybug6
 run sp-sg      streetview --densify_until_iter 3000 --size_threshold_from_iter 1000
-run defree_sfm streetview                                                          # note 1
+run defree_sfm streetview

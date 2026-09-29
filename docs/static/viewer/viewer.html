@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gaussian viewer</title>
+  <style>
+    html, body { margin: 0; height: 100%; overflow: hidden; background: #1f2333; touch-action: none; }
+    #canvas { display: block; width: 100%; height: 100%; }
+    #progress { position: absolute; top: 0; left: 0; height: 3px; background: #c0392b; transition: width .1s; z-index: 2; }
+    #spinner {
+      position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+      color: rgba(255,255,255,.7); font: 13px "JetBrains Mono", Menlo, monospace; pointer-events: none;
+    }
+    #quality, #caminfo { position: absolute; bottom: 6px; font: 11px "JetBrains Mono", Menlo, monospace; color: rgba(255,255,255,.55); pointer-events: none; }
+    #quality { right: 8px; }
+    #caminfo { left: 8px; }
+    #message { position: absolute; top: 10px; left: 10px; color: #f88; font: 12px sans-serif; }
+  </style>
+</head>
+<body>
+  <div id="progress"></div>
+  <div id="message"></div>
+  <div id="spinner">loading Gaussians…</div>
+  <canvas id="canvas"></canvas>
+  <div id="quality"><span id="fps"></span></div>
+  <div id="caminfo"><span id="camid"></span></div>
+  <script src="main.js"></script>
+</body>
+</html>

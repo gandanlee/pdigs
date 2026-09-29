@@ -45,7 +45,7 @@ Table 1 of the paper. MRE = mean reprojection error of the SfM point cloud, whic
 - The priors raise PSNR in 9 of the 10 valid settings. The exception is Parking lots + LoFTR, where artificial-light reflections on the floor blur the priors. SSIM stays comparable, while LPIPS rises in several cases because monocular priors oversmooth high-frequency texture (grass, foliage, gravel).
 - COLMAP fails to reconstruct the Parking lots and Street-view scenes. SP-SG and LoFTR both succeed, and LoFTR gives the lower MRE of the two on both scenes.
 
-[`docs/REPRODUCE.md`](docs/REPRODUCE.md) maps every row to its command and to the value its trained model gives, and lists the settings the paper text leaves out.
+[`docs/REPRODUCE.md`](docs/REPRODUCE.md) gives the command for every row.
 
 ## Installation
 
