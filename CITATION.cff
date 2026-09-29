@@ -1,0 +1,37 @@
+cff-version: 1.2.0
+message: "If you use this work, please cite the paper below."
+title: "Prior-Driven Enhancements in 3D Gaussian Splatting: Normals and Depths Regularization"
+doi: 10.5194/isprs-archives-XLVIII-G-2025-891-2025
+license: CC-BY-4.0
+authors:
+  - family-names: Lee
+    given-names: Gyeonggwan
+    affiliation: "AI R&D Team, KakaoMobility"
+  - family-names: Hong
+    given-names: Seunghwan
+    affiliation: "AI R&D Team, KakaoMobility"
+  - family-names: Suh
+    given-names: Junghun
+    affiliation: "AI R&D Team, KakaoMobility"
+preferred-citation:
+  type: article
+  title: "Prior-Driven Enhancements in 3D Gaussian Splatting: Normals and Depths Regularization"
+  authors:
+    - family-names: Lee
+      given-names: Gyeonggwan
+    - family-names: Hong
+      given-names: Seunghwan
+    - family-names: Suh
+      given-names: Junghun
+  journal: "The International Archives of the Photogrammetry, Remote Sensing and Spatial Information Sciences"
+  volume: "XLVIII-G-2025"
+  start: 891
+  end: 897
+  year: 2025
+  doi: 10.5194/isprs-archives-XLVIII-G-2025-891-2025
+  conference:
+    name: "ISPRS Geospatial Week 2025"
+    city: Dubai
+    country: AE
+    date-start: 2025-04-06
+    date-end: 2025-04-11

@@ -1,0 +1,46 @@
+# ─────────────────────────────────────────────────────────────
+#  Private working material — present in the folder, never pushed.
+# ─────────────────────────────────────────────────────────────
+_work/
+
+# ── Python ──
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.venv/
+venv/
+.pytest_cache/
+
+# ── Training outputs / data ──
+output/
+/data/
+/datasets/
+*.ply
+*.pth
+*.pt
+*.npy
+*.zip
+*.tar
+*.tar.gz
+
+# ── Compiled extensions ──
+*.so
+
+# ── Secrets ──
+.env
+.env.*
+*.key
+*.pem
+credentials*
+
+# ── OS / editor ──
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+
+# ── Keep ──
+!paper/*.pdf

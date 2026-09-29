@@ -1,0 +1,12 @@
+# Environment the paper's models were trained in: Ubuntu 20.04, CUDA 11.6, PyTorch 1.13.1.
+name: pdigs
+channels:
+  - conda-forge
+dependencies:
+  - python=3.8
+  - pip
+  - pip:
+    - --extra-index-url https://download.pytorch.org/whl/cu116
+    - torch==1.13.1+cu116
+    - torchvision==0.14.1+cu116
+    - -r requirements.txt
