@@ -2,6 +2,10 @@ cff-version: 1.2.0
 message: "If you use this work, please cite the paper below."
 title: "Prior-Driven Enhancements in 3D Gaussian Splatting: Normals and Depths Regularization"
 doi: 10.5194/isprs-archives-XLVIII-G-2025-891-2025
+identifiers:
+  - type: url
+    value: https://arxiv.org/abs/2609.36969
+    description: arXiv preprint
 license: CC-BY-4.0
 authors:
   - family-names: Lee
